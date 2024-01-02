@@ -8,7 +8,7 @@
   outputs = { self, nixpkgs, flake-utils, gomod2nix }:
     let
       nixosModule = {
-        tellall = import ./nixos-module.nix;
+        tellall = import ./nixos-module.nix self;
       };
     in
     flake-utils.lib.eachDefaultSystem (system:
