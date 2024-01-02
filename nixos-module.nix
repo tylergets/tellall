@@ -12,13 +12,14 @@ in
   options.services.tellall = {
     enable = mkEnableOption "TellAll service";
 
+    # TODO - Add Host, Port, Config File, Config
+
     # Other options your service might need.
     # port = mkOption {
     #   type = types.int;
     #   default = 8080;
     #   description = "The port on which the TellAll service runs.";
     # };
-
     package = mkOption {
       type = types.package;
       default = tellall;
@@ -39,9 +40,9 @@ in
         # Replace with the actual binary path and options
 
         # Other service configuration
-         User = "tellall";
-         Restart = "on-failure";
-         StateDirectory = "tellall";
+        User = "tellall";
+        DynamicUser = true;
+        StateDirectory = "tellall";
       };
     };
   };

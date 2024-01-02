@@ -3,6 +3,7 @@ package config
 import (
 	"bytes"
 	"fmt"
+	"github.com/spf13/pflag"
 	"io/ioutil"
 	"os"
 
@@ -28,12 +29,21 @@ type HttpServer struct {
 
 // LoadConfig loads the configuration from the predefined paths.
 func LoadConfig() (*Config, error) {
-	viper.SetConfigName("config") // no need to include file extension
+
+	var cfgPath string
+	pflag.StringVarP(&cfgPath, "config", "c", "", "path to the config file")
+	pflag.Parse()
+
 	viper.SetConfigType("yaml")
 
-	viper.AddConfigPath(".")                      // current working directory
-	viper.AddConfigPath("$HOME/.config/tellall/") // home directory
-	viper.AddConfigPath("/var/lib/tellall/")      // other directory
+	if cfgPath != "" {
+		viper.SetConfigFile(cfgPath)
+	} else {
+		viper.SetConfigName("config")                 // name of config file (without extension)
+		viper.AddConfigPath(".")                      // current working directory
+		viper.AddConfigPath("$HOME/.config/tellall/") // home directory
+		viper.AddConfigPath("/var/lib/tellall/")      // other directory
+	}
 
 	hostname, err := os.Hostname()
 	if err != nil {
@@ -43,6 +53,8 @@ func LoadConfig() (*Config, error) {
 	viper.SetDefault("name", hostname)
 	viper.SetDefault("prefix", "tellall")
 	viper.SetDefault("debug", false)
+
+	viper.AutomaticEnv()
 
 	if err := viper.ReadInConfig(); err != nil {
 		return nil, fmt.Errorf("error reading config file: %w", err)
