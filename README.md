@@ -4,6 +4,9 @@ Swiss Army knife for local and network notifications.
 
 **Note -- This project is a work in progress and is subject to change. Especially the configuration file format.**
 
+# TODO
+- [ ] Complete Nix Home Manager Module
+
 # Description
 
 At its core, Tell All is a notification service designed for use amongst personal machines and home lab style servers. 

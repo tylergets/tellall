@@ -10,21 +10,29 @@
       nixosModule = {
         tellall = import ./nixos-module.nix self;
       };
+      homeManagerModule = {
+        tellall = import ./hm-module.nix self;
+      };
     in
-    flake-utils.lib.eachDefaultSystem (system:
-      let
-        pkgs = nixpkgs.legacyPackages.${system};
+    flake-utils.lib.eachDefaultSystem
+      (system:
+        let
+          pkgs = nixpkgs.legacyPackages.${system};
 
-        # The current default sdk for macOS fails to compile go projects, so we use a newer one for now.
-        # This has no effect on other platforms.
-        callPackage = pkgs.darwin.apple_sdk_11_0.callPackage or pkgs.callPackage;
-      in
-      {
-        packages.default = callPackage ./. {
-          inherit (gomod2nix.legacyPackages.${system}) buildGoApplication;
-        };
-        devShells.default = callPackage ./shell.nix {
-          inherit (gomod2nix.legacyPackages.${system}) mkGoEnv gomod2nix;
-        };
-      }) // { nixosModules = nixosModule; };
+          # The current default sdk for macOS fails to compile go projects, so we use a newer one for now.
+          # This has no effect on other platforms.
+          callPackage = pkgs.darwin.apple_sdk_11_0.callPackage or pkgs.callPackage;
+        in
+        {
+          packages.default = callPackage ./. {
+            inherit (gomod2nix.legacyPackages.${system}) buildGoApplication;
+          };
+          devShells.default = callPackage ./shell.nix {
+            inherit (gomod2nix.legacyPackages.${system}) mkGoEnv gomod2nix;
+          };
+        }) // {
+      nixosModules = nixosModule;
+      homeManagerModules = homeManagerModule;
+      formatter.x86_64-linux = nixpkgs.legacyPackages.x86_64-linux.nixpkgs-fmt;
+    };
 }
