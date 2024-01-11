@@ -1,10 +1,10 @@
 flake: { config, lib, pkgs, ... }:
 
 let
-
   cfg = config.services.tellall;
   tellall = flake.packages.${pkgs.stdenv.hostPlatform.system}.default;
-
+  configJSON = builtins.toJSON cfg.config;
+  configFile = pkgs.writeText "tellall-config.json" configJSON;
 in {
   meta.maintainers = with lib.maintainers; [ kranzes ];
 
@@ -15,7 +15,7 @@ in {
       package = tellall;
 
       config = lib.mkOption {
-        type = with types; attrsOf (oneOf [ str int bool ]);
+        type = with lib.types; attrsOf (oneOf [ str int bool ]);
         default = {};
       };
 
@@ -37,14 +37,14 @@ in {
 
     systemd.user.services.tellall = {
       Unit = {
-        Description = "Tellall - MQTT notification daemon";
+        Description = "Tellall - MQTT Notification Daemon";
         After = [ "graphical-session-pre.target" ];
         PartOf = [ "graphical-session.target" ];
       };
 
       Service = {
         Type = "simple";
-        ExecStart =  "${lib.getExe tellall} ${lib.escapeShellArgs cfg.extraArgs}";
+        ExecStart = "${lib.getExe tellall} -c '${configFile}' ${lib.escapeShellArgs cfg.extraArgs}";
         Restart = "on-failure";
         RestartSec = 5;
       };
