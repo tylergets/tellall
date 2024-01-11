@@ -15,7 +15,7 @@ in {
       package = tellall;
 
       config = lib.mkOption {
-        type = with lib.types; attrsOf (oneOf [ str int bool ]);
+        type = with lib.types; anything;
         default = {};
       };
 
